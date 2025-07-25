@@ -1,6 +1,6 @@
 import { Edit, Trash2 } from "lucide-react";
 import { Card } from "./ui/card";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -11,9 +11,10 @@ import { entriesAtom } from "@/atoms/entries-atom";
 import { selectedEntryAtom } from "@/atoms/selected-entry-atom";
 
 export default function MediaTable() {
-  const { entries, isLoading, error, numberOfPages } = entriesAtom.useValue();
+  const { entries, isLoading, error, numberOfPages, currentPage } =
+    entriesAtom.useValue();
 
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const hasMore = currentPage < numberOfPages;
   const lastScrollTop = useRef(0);
 
@@ -35,7 +36,7 @@ export default function MediaTable() {
       const nearBottom = scrollTop + windowHeight >= fullHeight - 100;
 
       if (isScrollingDown && nearBottom && hasMore && !isLoading) {
-        setCurrentPage((prev) => (prev < numberOfPages ? prev + 1 : prev));
+        entriesAtom.change("currentPage", currentPage + 1);
       }
     };
 

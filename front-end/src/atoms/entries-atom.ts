@@ -72,6 +72,11 @@ interface EntriesAtom {
    * Number of pages
    */
   numberOfPages: number;
+
+  /**
+   * Current page
+   */
+  currentPage: number;
 }
 
 export const entriesAtom = atom<EntriesAtom, EntriesAtomActions>({
@@ -82,6 +87,7 @@ export const entriesAtom = atom<EntriesAtom, EntriesAtomActions>({
     entry: null,
     error: "",
     numberOfPages: 0,
+    currentPage: 1,
   },
 
   actions: {
@@ -105,7 +111,8 @@ export const entriesAtom = atom<EntriesAtom, EntriesAtomActions>({
           const currentEntries = entriesAtom.get("entries");
           // Avoid duplicates if the same page is fetched twice
           const newEntries = data.data.filter(
-            (entry: Entry) => !currentEntries.some((e: Entry) => e._id === entry._id)
+            (entry: Entry) =>
+              !currentEntries.some((e: Entry) => e._id === entry._id)
           );
           entriesAtom.change("entries", [...currentEntries, ...newEntries]);
         }
@@ -144,7 +151,8 @@ export const entriesAtom = atom<EntriesAtom, EntriesAtomActions>({
       try {
         await endPoint.delete(`/entries/${id}`);
         toast.success("Entry deleted successfully");
-        entriesAtom.getAllEntries();
+        entriesAtom.reset();
+        entriesAtom.getAllEntries(entriesAtom.get("currentPage"));
         openDeleteConfirmModalAtom.close();
       } catch (error) {
         if (error instanceof AxiosError) {
@@ -164,7 +172,8 @@ export const entriesAtom = atom<EntriesAtom, EntriesAtomActions>({
       try {
         await endPoint.post("/entries", entryFormData);
         toast.success("Entry created successfully");
-        entriesAtom.getAllEntries();
+        entriesAtom.reset();
+        entriesAtom.getAllEntries(entriesAtom.get("currentPage"));
         openCreateMediaModelAtom.close();
       } catch (error) {
         if (error instanceof AxiosError) {
@@ -185,7 +194,8 @@ export const entriesAtom = atom<EntriesAtom, EntriesAtomActions>({
       try {
         await endPoint.put(`/entries/${id}`, entryFormData);
         toast.success("Entry updated successfully");
-        entriesAtom.getAllEntries();
+        entriesAtom.reset();
+        entriesAtom.getAllEntries(entriesAtom.get("currentPage"));
         openEditMediaModelAtom.close();
       } catch (error) {
         if (error instanceof AxiosError) {
